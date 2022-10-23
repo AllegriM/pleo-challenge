@@ -9,7 +9,7 @@ interface PanelInfo {
 
 const InfoPanel: React.FC<PanelInfo> = ({ sectionID, title }) => {
   return (
-    <Link key={sectionID} to={sectionID}>
+    <Link to={sectionID}>
       <HStack
         _hover={{ textDecoration: 'underline' }}
         p={6}

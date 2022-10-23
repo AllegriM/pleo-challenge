@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './Components/NavBar';
 import Home from './pages/Home';
 import Launches from './pages/Launches';
+import LaunchPads from './pages/LaunchPads';
 
 // export default Navbar
 
@@ -12,7 +13,8 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path=":launches" element={<Launches />} />
+        <Route path="/launches" element={<Launches />} />
+        <Route path="/launchPads" element={<LaunchPads />} />
       </Routes>
     </VStack>
   );

@@ -2,7 +2,6 @@ import { Badge, Image, HStack, Text, VStack } from '@chakra-ui/react';
 import { LaunchData } from '../vite-env';
 
 function LaunchCard({ launchData }: LaunchData) {
-  console.log(launchData);
   return (
     <VStack
       cursor={'pointer'}
@@ -12,7 +11,12 @@ function LaunchCard({ launchData }: LaunchData) {
       p={2}
       boxShadow={'lg'}
     >
-      <Image src={launchData?.links?.mission_patch} w={'400'} h={'300'} />
+      <Image
+        src={launchData?.links?.mission_patch}
+        w={'100%'}
+        objectFit={'cover'}
+        h={'300'}
+      />
       <VStack w={'100%'} px={6}>
         <HStack
           py={1}

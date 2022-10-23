@@ -1,13 +1,9 @@
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { LaunchData } from '../vite-env';
-
-interface LaunchDatasProps {
-  data: Array<LaunchData>;
-}
 
 function useSectionData() {
-  const { launches } = useParams<string>();
+  const location = useLocation();
+  const actualLocation = location.pathname.slice(1);
 
   const fetcher = async (url: string) => {
     const res = await fetch(url);
@@ -20,8 +16,8 @@ function useSectionData() {
     return res.json();
   };
 
-  const { data, error } = useSWR<LaunchDatasProps['data']>(
-    `${import.meta.env.VITE_SPACEX_API_URL + launches}`,
+  const { data, error } = useSWR(
+    `${import.meta.env.VITE_SPACEX_API_URL + actualLocation}`,
     fetcher,
   );
 

@@ -4,7 +4,7 @@ import InfoPanel from '../Components/InfoPanel';
 const Home: React.FC = () => {
   const SECTIONS = [
     { id: 'launches', title: 'Browse SpaceX Launches' },
-    { id: 'launch-pads', title: 'Browse SpaceX Launch Pads' },
+    { id: 'launchPads', title: 'Browse SpaceX Launch Pads' },
   ];
 
   return (
