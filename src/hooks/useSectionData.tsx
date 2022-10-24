@@ -1,9 +1,12 @@
+import { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import useSWR from 'swr';
+import { LaunchData, LaunchPad } from '../vite-env';
 
 function useSectionData() {
   const location = useLocation();
-  const actualLocation = location.pathname.slice(1);
+  const { id } = useParams();
+  const actualLocation = location.pathname.slice(1).toLocaleLowerCase();
 
   const fetcher = async (url: string) => {
     const res = await fetch(url);
@@ -16,12 +19,20 @@ function useSectionData() {
     return res.json();
   };
 
-  const { data, error } = useSWR(
-    `${import.meta.env.VITE_SPACEX_API_URL + actualLocation}`,
+  function getSpaceXUrl() {
+    const spaceXApiBase = import.meta.env.VITE_SPACEX_API_URL;
+    if (id) {
+      return `${spaceXApiBase}${actualLocation}`;
+    }
+    return `${spaceXApiBase}${actualLocation}`;
+  }
+
+  const { data, error } = useSWR<LaunchData[] | LaunchPad[]>(
+    `${getSpaceXUrl()}`,
     fetcher,
   );
 
-  return { data, error };
+  return { data, error, id };
 }
 
 export default useSectionData;
