@@ -1,10 +1,10 @@
 import { Badge, Image, HStack, Text, VStack } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import { LaunchData } from '../vite-env';
+import { launchData } from '../vite-env';
 
-function LaunchCard({ launchData }: LaunchData) {
+function LaunchCard({ launchData }: launchData) {
   return (
-    <Link to={`/launches/${launchData.flight_number}`}>
+    <Link to={`/launches/${launchData?.flight_number}`}>
       <VStack
         cursor={'pointer'}
         border={'1px solid #eaeaea'}
@@ -18,7 +18,7 @@ function LaunchCard({ launchData }: LaunchData) {
             launchData?.links?.flickr_images[0]?.replace('_0.jpg', '_z.jpg') ??
             launchData?.links?.mission_patch_small
           }
-          alt={`${launchData.mission_name} launch`}
+          alt={`${launchData?.mission_name} launch`}
           w={'100%'}
           objectPosition="bottom"
           objectFit={'cover'}
@@ -35,17 +35,17 @@ function LaunchCard({ launchData }: LaunchData) {
           >
             <Badge
               w={'fit-content'}
-              colorScheme={launchData.launch_success ? 'green' : 'red'}
+              colorScheme={launchData?.launch_success ? 'green' : 'red'}
             >
-              {launchData.launch_success ? 'Successful' : 'Failed'}
+              {launchData?.launch_success ? 'Successful' : 'Failed'}
             </Badge>
             <Text fontSize={14}>
               {launchData?.rocket?.rocket_name} •{' '}
-              {launchData.launch_site.site_name}
+              {launchData?.launch_site?.site_name}
             </Text>
           </HStack>
           <Text textAlign={'start'} fontWeight={'semibold'} width={'100%'}>
-            {launchData.mission_name}
+            {launchData?.mission_name}
           </Text>
         </VStack>
       </VStack>

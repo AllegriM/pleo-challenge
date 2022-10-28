@@ -1,26 +1,23 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  Container,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Button, Container, Stack } from '@chakra-ui/react';
+import Errors from '../Components/Errors';
 import LaunchPadCard from '../Components/LaunchPadCard';
+import LoadMoreButton from '../Components/LoadMoreButton';
 import BreadCrumbs from '../Components/UI Components/BreadCrumbs';
 import Loader from '../Components/UI Components/Loader';
-import Separator from '../Components/UI Components/Separator';
 import usePaginate from '../hooks/usePaginate';
-import useSectionData from '../hooks/useSectionData';
+import { useSpaceXPaginated } from '../hooks/useSectionData';
+import { launchPad } from '../vite-env';
 
+const LAUNCH_PADS = 6;
 const LaunchPads: React.FC = () => {
-  const { data, error } = useSectionData();
-  const { showMoreCards, paginate } = usePaginate({
-    initialPage: 6,
-    step: 6,
-    data,
-  });
+  const { data, error, isValidating, size, setSize } = useSpaceXPaginated(
+    `${import.meta.env.VITE_SPACEX_API_URL}/launchpads`,
+    {
+      limit: LAUNCH_PADS,
+    },
+  );
+
+  if (error) return <Errors />;
 
   if (!data) {
     return <Loader />;
@@ -40,18 +37,20 @@ const LaunchPads: React.FC = () => {
         w={'100%'}
         gap={4}
       >
-        {data.slice(0, paginate).map((launchPad) => {
+        {data.flat().map((launchPad) => {
           return <LaunchPadCard key={launchPad.id} launchPadData={launchPad} />;
         })}
       </Stack>
       <Stack w={'100%'} align="center" p={10}>
-        <Button
+        <LoadMoreButton
           w={'min-content'}
-          onClick={showMoreCards}
-          disabled={data.length === paginate}
+          loadMore={() => setSize(size + 1)}
+          data={data}
+          pageSize={LAUNCH_PADS}
+          isLoadingMore={isValidating}
         >
           Show more
-        </Button>
+        </LoadMoreButton>
       </Stack>
     </Container>
   );

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { LaunchData, LaunchPad } from '../vite-env';
+import { launchData, launchPad } from '../vite-env';
 
 interface PaginateProps {
   initialPage: number;
   step: number;
-  data?: LaunchPad[] | LaunchData[];
+  data?: launchPad[] | launchData[];
 }
 
 function usePaginate({ initialPage, step, data }: PaginateProps) {

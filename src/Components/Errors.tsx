@@ -1,0 +1,33 @@
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Flex,
+} from '@chakra-ui/react';
+
+function Errors() {
+  return (
+    <Flex alignItems="center" justifyContent="center" width="100%">
+      <Alert
+        status="error"
+        variant="left-accent"
+        flexDirection="column"
+        justifyContent="center"
+        textAlign="center"
+        p="8"
+      >
+        <AlertIcon mr={0} />
+        <AlertTitle mt={4} mb={1} fontSize="lg">
+          Problems loading the data
+        </AlertTitle>
+        <AlertDescription maxWidth="md">
+          If the problem persists, try to refresh the page or wait a few minutes
+          and try again.
+        </AlertDescription>
+      </Alert>
+    </Flex>
+  );
+}
+
+export default Errors;

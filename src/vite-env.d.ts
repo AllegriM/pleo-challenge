@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-export interface LaunchData {
+export interface launchData {
   launchData: {
     flight_number: number | any;
     mission_name: string;
@@ -30,7 +30,7 @@ export interface LaunchData {
           landing_intent: boolean;
           landing_type: string | any;
           landing_vehicle: string | any;
-        };
+        }[];
       };
       second_stage: {
         block: number;
@@ -62,7 +62,7 @@ export interface LaunchData {
             arg_of_pericenter: any | number;
             mean_anomaly: any | number;
           };
-        };
+        }[];
       };
       fairings: {
         reused: boolean;
@@ -117,7 +117,7 @@ export interface Location {
   longitude: number;
 }
 
-export interface LaunchPad {
+export interface launchPad {
   launchPadData: {
     id: number;
     name: string;

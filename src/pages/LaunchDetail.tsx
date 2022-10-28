@@ -15,17 +15,26 @@ import {
   StatNumber,
   Text,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import Errors from '../Components/Errors';
 import Rocket from '../Components/Icons/Box';
 import Location from '../Components/Icons/Location';
 import Rocket2 from '../Components/Icons/Rocket2';
 import Watch from '../Components/Icons/Watch';
 import BreadCrumbs from '../Components/UI Components/BreadCrumbs';
-import useSectionData from '../hooks/useSectionData';
-import { LaunchPad } from '../vite-env';
+import { useSpaceX } from '../hooks/useSectionData';
+import { formatDateTime } from '../utils/formatTime';
+import { launchData } from '../vite-env';
 
 const LaunchDetail: React.FC = () => {
-  const { data, error, id } = useSectionData();
+  const { id } = useParams();
+
+  const { data, error } = useSpaceX(
+    `${import.meta.env.VITE_SPACEX_API_URL}/launches/${id}`,
+    {},
+  );
+
+  if (error) return <Errors />;
 
   return (
     <Container maxW={'95%'}>
@@ -36,24 +45,28 @@ const LaunchDetail: React.FC = () => {
           { label: `#${id}`, to: `/launches/${id}` },
         ]}
       />
-      <Header launch={data} />
-      <TimeAndLocation launch={data} />
-      <RocketInfo launch={data} />
-      <Text color="gray.700" fontSize={['md', null, 'lg']} my="8">
-        {data?.details}
-      </Text>
-      <Video launch={data} />
-      <Gallery images={data?.links?.flickr_images} />
+      {data && (
+        <>
+          <Header launchData={data} />
+          <TimeAndLocation launchData={data} />
+          <RocketInfo launchData={data} />
+          <Text color="gray.700" fontSize={['md', null, 'lg']} my="8">
+            {data.details}
+          </Text>
+          <Video launchData={data} />
+          <Gallery launchData={data} />
+        </>
+      )}
     </Container>
   );
 };
 
 export default LaunchDetail;
 
-function Header({ launch }: LaunchPad) {
+function Header({ launchData }: launchData) {
   return (
     <Flex
-      bgImage={`url(${launch?.links?.flickr_images[0]})`}
+      bgImage={`url(${launchData.links.flickr_images[0]})`}
       bgPos="center"
       bgSize="cover"
       bgRepeat="no-repeat"
@@ -67,7 +80,7 @@ function Header({ launch }: LaunchPad) {
         position="absolute"
         top="5"
         right="5"
-        src={launch?.links?.mission_patch_small}
+        src={launchData.links.mission_patch_small}
         height={['85px', '150px']}
         objectFit="contain"
         objectPosition="bottom"
@@ -81,13 +94,13 @@ function Header({ launch }: LaunchPad) {
         py="2"
         borderRadius="lg"
       >
-        {launch?.mission_name}
+        {launchData.mission_name}
       </Heading>
       <Stack isInline spacing="3">
         <Badge colorScheme={'purple'} fontSize={['xs', 'md']}>
-          #{launch?.flight_number}
+          #{launchData.flight_number}
         </Badge>
-        {launch?.launch_success ? (
+        {launchData.launch_success ? (
           <Badge colorScheme="green" fontSize={['xs', 'md']}>
             Successful
           </Badge>
@@ -101,7 +114,7 @@ function Header({ launch }: LaunchPad) {
   );
 }
 
-function TimeAndLocation({ launch }: LaunchPad) {
+function TimeAndLocation({ launchData }: launchData) {
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -111,8 +124,10 @@ function TimeAndLocation({ launch }: LaunchPad) {
             Launch Date
           </Box>
         </StatLabel>
-        <StatNumber fontSize={['md', 'xl']}></StatNumber>
-        <StatHelpText></StatHelpText>
+        <StatNumber fontSize={['md', 'xl']}>
+          {formatDateTime(launchData.launch_date_utc)}
+        </StatNumber>
+        <StatHelpText>{launchData.launch_date_utc}</StatHelpText>
       </Stat>
       <Stat>
         <StatLabel display="flex" alignItems={'center'}>
@@ -122,18 +137,18 @@ function TimeAndLocation({ launch }: LaunchPad) {
           </Box>
         </StatLabel>
         <StatNumber fontSize={['md', 'xl']}>
-          <Link to={`/launch-pads/${launch?.launch_site?.site_id}`}>
-            {launch?.launch_site?.site_name_long}
+          <Link to={`/launch-pads/${launchData.launch_site.site_id}`}>
+            {launchData.launch_site.site_name_long}
           </Link>
         </StatNumber>
-        <StatHelpText>{launch?.launch_site?.site_name}</StatHelpText>
+        <StatHelpText>{launchData.launch_site.site_name}</StatHelpText>
       </Stat>
     </SimpleGrid>
   );
 }
 
-function RocketInfo({ launch }: LaunchPad) {
-  const cores = launch?.rocket?.first_stage?.cores;
+function RocketInfo({ launchData }: launchData) {
+  const cores = launchData.rocket.first_stage.cores;
 
   return (
     <SimpleGrid
@@ -151,9 +166,9 @@ function RocketInfo({ launch }: LaunchPad) {
           </Box>
         </StatLabel>
         <StatNumber fontSize={['md', 'xl']}>
-          {launch?.rocket?.rocket_name}
+          {launchData.rocket.rocket_name}
         </StatNumber>
-        <StatHelpText>{launch?.rocket?.rocket_type}</StatHelpText>
+        <StatHelpText>{launchData.rocket.rocket_type}</StatHelpText>
       </Stat>
       <StatGroup>
         <Stat>
@@ -164,10 +179,10 @@ function RocketInfo({ launch }: LaunchPad) {
             </Box>
           </StatLabel>
           <StatNumber fontSize={['md', 'xl']}>
-            {cores?.map((core) => core?.core_serial).join(', ')}
+            {cores.map((core) => core.core_serial).join(', ')}
           </StatNumber>
           <StatHelpText>
-            {cores?.every((core) => core?.land_success)
+            {cores.every((core) => core.land_success)
               ? cores.length === 1
                 ? 'Recovered'
                 : 'All recovered'
@@ -182,12 +197,12 @@ function RocketInfo({ launch }: LaunchPad) {
             </Box>
           </StatLabel>
           <StatNumber fontSize={['md', 'xl']}>
-            Block {launch?.rocket?.second_stage?.block}
+            Block {launchData.rocket.second_stage.block}
           </StatNumber>
           <StatHelpText>
             Payload:{' '}
-            {launch?.rocket?.second_stage?.payloads
-              .map((payload) => payload?.payload_type)
+            {launchData.rocket.second_stage.payloads
+              .map((payload) => payload.payload_type)
               .join(', ')}
           </StatHelpText>
         </Stat>
@@ -196,27 +211,27 @@ function RocketInfo({ launch }: LaunchPad) {
   );
 }
 
-function Video({ launch }) {
+function Video({ launchData }: launchData) {
   return (
     <AspectRatio maxH="400px" ratio={1.7}>
       <Box
         as="iframe"
-        title={launch?.mission_name}
-        src={`https://www.youtube.com/embed/${launch?.links?.youtube_id}`}
+        title={launchData.mission_name}
+        src={`https://www.youtube.com/embed/${launchData.links.youtube_id}`}
         allowFullScreen
       />
     </AspectRatio>
   );
 }
-
-function Gallery({ images }) {
+// data.links.flickr_images
+function Gallery({ launchData }: launchData) {
   return (
     <Box my="6" sx={{ columnCount: [1, 2, 3, 4], columnGap: '8px' }}>
-      {images?.map((image) => (
+      {launchData.links.flickr_images.map((image) => (
         <Image
           maxWidth={'100%'}
           mb={2}
-          src={image?.replace('_o.jpg', '_z.jpg')}
+          src={image.replace('_o.jpg', '_z.jpg')}
         />
       ))}
     </Box>

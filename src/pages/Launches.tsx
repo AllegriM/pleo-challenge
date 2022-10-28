@@ -1,18 +1,22 @@
-import { Button, Container, Grid, Stack } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Container, Grid, Stack } from '@chakra-ui/react';
+import Errors from '../Components/Errors';
 import LaunchCard from '../Components/LaunchCard';
+import LoadMoreButton from '../Components/LoadMoreButton';
 import BreadCrumbs from '../Components/UI Components/BreadCrumbs';
 import Loader from '../Components/UI Components/Loader';
-import usePaginate from '../hooks/usePaginate';
-import useSectionData from '../hooks/useSectionData';
+import { useSpaceXPaginated } from '../hooks/useSectionData';
+
+const LAUNCH_CARDS = 12;
 
 const Launches: React.FC = () => {
-  const { data, error } = useSectionData();
-  const { showMoreCards, paginate } = usePaginate({
-    initialPage: 12,
-    step: 8,
-    data,
-  });
+  const { data, error, isValidating, setSize, size } = useSpaceXPaginated(
+    `${import.meta.env.VITE_SPACEX_API_URL}/launches`,
+    {
+      limit: LAUNCH_CARDS,
+      order: 'desc',
+      sort: 'launch_date_utc',
+    },
+  );
 
   if (!data) {
     return <Loader />;
@@ -31,15 +35,23 @@ const Launches: React.FC = () => {
           gap={4}
           gridTemplateColumns={'repeat(auto-fit, minmax(320px, 1fr))'}
         >
-          {data.slice(0, paginate).map((launch, index: number) => {
-            return <LaunchCard key={index} launchData={launch} />;
-          })}
+          {error && <Errors />}
+          {data &&
+            data.flat().map((launch, index: number) => {
+              return <LaunchCard key={index} launchData={launch} />;
+            })}
         </Grid>
       </Stack>
       <Stack w={'100%'} align="center" p={10}>
-        <Button w={'min-content'} onClick={showMoreCards}>
+        <LoadMoreButton
+          w={'min-content'}
+          loadMore={() => setSize(size + 1)}
+          data={data}
+          pageSize={LAUNCH_CARDS}
+          isLoadingMore={isValidating}
+        >
           Show more
-        </Button>
+        </LoadMoreButton>
       </Stack>
     </Container>
   );

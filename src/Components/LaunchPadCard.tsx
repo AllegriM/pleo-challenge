@@ -1,12 +1,12 @@
 import { Badge, Heading, HStack, Stack, Text, VStack } from '@chakra-ui/react';
-import { Link, useParams } from 'react-router-dom';
-import { LaunchPad } from '../vite-env';
+import { Link } from 'react-router-dom';
+import { launchPad } from '../vite-env';
 
-function LaunchPadCard({ launchPadData }: LaunchPad) {
+function LaunchPadCard({ launchPadData }: launchPad) {
   return (
-    <Link to={`/launchPads/${launchPadData.site_id}`}>
+    <Link to={`/launchPads/${launchPadData?.site_id}`}>
       <Stack
-        key={launchPadData.id}
+        key={launchPadData?.id}
         boxShadow={'md'}
         border={'1px solid #eaeaea'}
         p={6}
@@ -17,13 +17,13 @@ function LaunchPadCard({ launchPadData }: LaunchPad) {
         <HStack>
           <Badge
             variant={'solid'}
-            colorScheme={launchPadData.status === 'active' ? 'green' : 'red'}
+            colorScheme={launchPadData?.status === 'active' ? 'green' : 'red'}
           >
-            {launchPadData.status === 'active' ? 'Active' : 'Retired'}
+            {launchPadData?.status === 'active' ? 'Active' : 'Retired'}
           </Badge>
           <Text color={'gray.500'} fontSize={'small'} fontWeight={'semibold'}>
-            {launchPadData.attempted_launches} ATTEMPETED •{' '}
-            {launchPadData.successful_launches} SUCCEEDED
+            {launchPadData?.attempted_launches} ATTEMPETED •{' '}
+            {launchPadData?.successful_launches} SUCCEEDED
           </Text>
         </HStack>
         <VStack spacing={1} align={'flex-start'} display={'block'}>
@@ -34,10 +34,10 @@ function LaunchPadCard({ launchPadData }: LaunchPad) {
             textOverflow={'ellipsis'}
             whiteSpace={'nowrap'}
           >
-            {launchPadData.site_name_long}
+            {launchPadData?.site_name_long}
           </Heading>
           <Text fontSize={'.9rem'} color={'gray.500'}>
-            {launchPadData.vehicles_launched.join(', ')}
+            {launchPadData?.vehicles_launched.join(', ')}
           </Text>
         </VStack>
       </Stack>

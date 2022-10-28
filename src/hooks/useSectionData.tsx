@@ -1,38 +1,53 @@
-import { useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { LaunchData, LaunchPad } from '../vite-env';
+import useSWRInfinite from 'swr/infinite';
+import { launchData, launchPad } from '../vite-env';
 
-function useSectionData() {
-  const location = useLocation();
-  const { id } = useParams();
-  const actualLocation = location.pathname.slice(1).toLocaleLowerCase();
-
-  const fetcher = async (url: string) => {
-    const res = await fetch(url);
-
-    if (!res.ok) {
-      const error = new Error('An error occurred while fetching the data.');
-      throw error;
-    }
-
-    return res.json();
-  };
-
-  function getSpaceXUrl() {
-    const spaceXApiBase = import.meta.env.VITE_SPACEX_API_URL;
-    if (id) {
-      return `${spaceXApiBase}${actualLocation}`;
-    }
-    return `${spaceXApiBase}${actualLocation}`;
-  }
-
-  const { data, error } = useSWR<LaunchData[] | LaunchPad[]>(
-    `${getSpaceXUrl()}`,
-    fetcher,
-  );
-
-  return { data, error, id };
+interface optionsProps {
+  offset?: number;
+  limit?: number;
+  order?: string;
+  sort?: string;
+  site_id?: string;
 }
 
-export default useSectionData;
+type T = keyof optionsProps;
+
+const fetcher = async (...args: string[]) => {
+  console.log(args[0]);
+  const response = await fetch(...args);
+  if (!response.ok) {
+    throw Error(response.statusText);
+  }
+  return await response.json();
+};
+
+function getSpaceXUrl(url: string, options: optionsProps) {
+  const searchParams = new URLSearchParams();
+  for (const property in options) {
+    searchParams.append(property, options[property]);
+  }
+  return `${url}?${searchParams.toString()}`;
+}
+
+export function useSpaceX(url: string, options: optionsProps) {
+  const endpointUrl = getSpaceXUrl(url, options);
+  return useSWR(url ? endpointUrl : null, fetcher);
+}
+
+export function useSpaceXPaginated(url: string, options: optionsProps) {
+  return useSWRInfinite<launchData[] | launchPad[]>(
+    (pageIndex, previousPageData) => {
+      if (previousPageData && !previousPageData.length) {
+        return null;
+      }
+      return getSpaceXUrl(url, {
+        ...options,
+        offset: options.limit * pageIndex,
+      });
+    },
+    fetcher,
+  );
+}
+
+// export default useSectionData;
